@@ -8,20 +8,46 @@ using NLayer.Repository.UnitOfWork;
 using NLayer.Core.Services;
 using NLayer.Service.Services;
 using NLayer.Service.Mapping;
+using FluentValidation.AspNetCore;
+using NLayer.Service.Validations;
+using NLayer.API.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+// Bu satýr, controller hizmetlerini dependency injection (baðýmlýlýk enjeksiyonu) konteynerine ekler.
+// options parametresi, modellerin doðrulayýcýlarýna karþý doðrulama yapan bir global filtre eklemek için kullanýlýr.
+builder.Services.AddControllers(options => options.Filters.Add(new ValidateFilterAttirbute())).AddFluentValidation(x => x.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>());
 
-builder.Services.AddControllers();
+
+// ASP.NET Core API'da, hatalý model durumunda varsayýlan olarak ModelState'ýn döndürdüðü hatayý engellemek için bu seçeneði ekliyoruz.
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
+});
+
+
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// Dependency Injection iþlemleri
+// UnitOfWork, IGenericRepository ve IService arayüzleri için GenericRepository ve Service sýnýflarýný kullanýyoruz.
+
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-//Henüz service interface'ini implemente etmedik bu yüzden daha sonra ekleyeceðiz.
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
+
+builder.Services.AddScoped<IProductRepository,ProductRepository >();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
 
 builder.Services.AddAutoMapper(typeof(MapProfile));
 

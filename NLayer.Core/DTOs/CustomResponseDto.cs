@@ -13,11 +13,10 @@ namespace NLayer.Core.DTOs
         public List<String> Errors { get; set; }
         public int StatusCode { get; set; }
 
-        public static CustomNoContentResponseDto Success(int statusCode, T data)
+        public static CustomNoContentResponseDto Success(int statusCode)
         {
             return new CustomNoContentResponseDto
             {
-                Data = data,
                 StatusCode = statusCode
 
             };
@@ -56,6 +55,16 @@ namespace NLayer.Core.DTOs
         public T Data { get; set; }
         public List<String> Errors { get; set; }
         public int StatusCode { get; set; }
+
+        public static CustomResponseDto<T> Success(int statusCode)
+        {
+            return new CustomResponseDto<T>
+            {
+               
+                StatusCode = statusCode
+
+            };
+        }
 
         public static CustomResponseDto<T> Success(int statusCode, T data)
         {
